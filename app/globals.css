@@ -10,6 +10,13 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Palette taken from the cookbook app icon */
+  --color-mustard: #e8a93c;
+  --color-pot: #3b2e2a;
+  --color-lid: #4a3b35;
+  --color-tomato: #c9573f;
+  --color-cream: #fff4e0;
 }
 
 @media (prefers-color-scheme: dark) {
