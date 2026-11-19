@@ -1,36 +1,6 @@
-'use client';
-
-import { User } from "@supabase/supabase-js";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { supabase } from "./lib/supabase";
+// proxy.ts redirects to /login before this page renders if no one is logged in.
 
 export default function Home() {
-  const [user, SetUser] = useState<User | null>(null);
-  const router = useRouter();
-
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({data: {session} }) => {
-      if (!session) {
-        router.push('/login');
-      } else {
-        SetUser(session.user);
-      }
-    })
-
-    const {data: {subscription}} = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) {
-        router.push('/login');
-      } else {
-        SetUser(session.user);
-      }
-    });
-
-     return () => subscription.unsubscribe();
-  
-  }, [router]);
-
 
   // Todo: Get user recipes
 

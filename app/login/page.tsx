@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../lib/supabase/client';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -24,6 +24,7 @@ export default function LoginPage() {
       setError(error.message)
     } else {
       router.push('/')
+      router.refresh()
     }
   }
 

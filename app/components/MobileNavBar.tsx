@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { House, User, CookingPot } from "lucide-react";
+import { House, User, CookingPot, ShoppingCart } from "lucide-react";
 
 
 export default function MobileNavBar() {
@@ -10,8 +10,8 @@ export default function MobileNavBar() {
     const navItems = [
         { href: "/", icon: House, label: "Home" },
         { href: "/recipes", icon: CookingPot, label: "Recipes" },
+        { href: "/groceries", icon: ShoppingCart, label: "Groceries"},
         { href: "/profile", icon: User, label: "Profile" },
-
     ]
 
     const pathname = usePathname();
