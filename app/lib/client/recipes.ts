@@ -1,5 +1,5 @@
-import { supabase } from "./supabase/client";
-import type { NewIngredient, NewRecipe, Recipes } from "../types/recipes";
+import { supabase } from "../supabase/client";
+import type { NewIngredient, NewRecipe, Recipes } from "../../types/recipes";
 
 
 export async function getRecipes() {
