@@ -32,7 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col pb-24 sm:pb-0">
-        {children}
+        <main className="flex flex-1 flex-col">{children}</main>
         <MobileNavBar />
       </body>
     </html>

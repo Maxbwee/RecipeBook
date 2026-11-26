@@ -8,30 +8,64 @@ import { addIngredients, createRecipe, replaceIngredients, updateRecipe } from "
 
 const emptyRow = (): IngredientRow => ({ key: crypto.randomUUID(), name: "", quantity: "", unit: "" });
 
-export function RecipeForm({recipe}: { recipe?: RecipeWithIngredients}) {
-    const router = useRouter();
-
-
-    // Start from the recipe's values when editing, or empty when creating
-    const [name, setName] = useState(recipe?.name ?? "");
-    const [description, setDescription] = useState(recipe?.description ?? "");
-    const [instructions, setInstructions] = useState(recipe?.instructions ?? "");
-    const [servings, setServings] = useState(recipe?.servings?.toString() ?? "");
-    const [prepMinutes, setPrepMinutes] = useState(recipe?.prep_minutes?.toString() ?? "");
-    const [cookMinutes, setCookMinutes] = useState(recipe?.cook_minutes?.toString() ?? "");
-    const [ingredients, setIngredients] = useState<IngredientRow[]>(
-        recipe?.recipe_ingredients.length
+// The form's starting values: the recipe's when editing, or empty when creating.
+// Used both for the first render and for resetting the form.
+function toFormValues(recipe?: RecipeWithIngredients) {
+    return {
+        name: recipe?.name ?? "",
+        description: recipe?.description ?? "",
+        instructions: recipe?.instructions ?? "",
+        servings: recipe?.servings?.toString() ?? "",
+        prepMinutes: recipe?.prep_minutes?.toString() ?? "",
+        cookMinutes: recipe?.cook_minutes?.toString() ?? "",
+        ingredients: recipe?.recipe_ingredients.length
             ? recipe.recipe_ingredients.map((ing) => ({
                   key: ing.id,
                   name: ing.name,
                   quantity: ing.quantity?.toString() ?? "",
                   unit: ing.unit ?? "",
               }))
-            : [{ key: "first", name: "", quantity: "", unit: "" }]
-    );
+            // Fixed key: crypto.randomUUID() isn't allowed while Next.js prerenders
+            : [{ key: "first", name: "", quantity: "", unit: "" }],
+    };
+}
+
+export function RecipeForm({recipe}: { recipe?: RecipeWithIngredients}) {
+    const router = useRouter();
+
+    const initial = toFormValues(recipe);
+    const [name, setName] = useState(initial.name);
+    const [description, setDescription] = useState(initial.description);
+    const [instructions, setInstructions] = useState(initial.instructions);
+    const [servings, setServings] = useState(initial.servings);
+    const [prepMinutes, setPrepMinutes] = useState(initial.prepMinutes);
+    const [cookMinutes, setCookMinutes] = useState(initial.cookMinutes);
+    const [ingredients, setIngredients] = useState<IngredientRow[]>(initial.ingredients);
     const [error, setError] = useState("");
     const [saving, setSaving] = useState(false);
 
+
+    // Next.js keeps recently visited pages alive in the background (with
+    // cacheComponents on), so the form must be reset by hand: otherwise the
+    // next visit would still show old or abandoned values.
+    function resetForm(values = toFormValues(recipe)) {
+        setName(values.name);
+        setDescription(values.description);
+        setInstructions(values.instructions);
+        setServings(values.servings);
+        setPrepMinutes(values.prepMinutes);
+        setCookMinutes(values.cookMinutes);
+        setIngredients(values.ingredients);
+        setError("");
+        setSaving(false);
+    }
+
+    // Edit form only: throw away unsaved changes and go back to the recipe
+    function handleCancel() {
+        if (!recipe) return;
+        resetForm();
+        router.push(`/recipes/${recipe.id}`);
+    }
 
     function removeRow(key: string) {
         setIngredients((rows) => rows.filter((r) => r.key !== key));
@@ -89,6 +123,14 @@ export function RecipeForm({recipe}: { recipe?: RecipeWithIngredients}) {
             return setError("The recipe saved, but its ingredients didn't. Try again!");
         }
 
+        if (recipe) {
+            // Edit form: just re-enable the button. EditRecipe gives the form a
+            // key based on updated_at, so it starts from the saved values next time.
+            setSaving(false);
+        } else {
+            resetForm(toFormValues()); // empty, ready for the next new recipe
+        }
+
         router.push(`/recipes/${saved.id}`);
         router.refresh();
     }
@@ -136,9 +178,22 @@ export function RecipeForm({recipe}: { recipe?: RecipeWithIngredients}) {
                 <textarea rows={8} value={instructions} onChange={(e) => setInstructions(e.target.value)} />
             </section>
 
-            <button type="submit" disabled={saving} className="rounded-lg bg-mustard py-3 font-semibold text-pot disabled:opacity-50">
-                {saving ? "Saving…" : recipe ? "Save changes" : "Save recipe"}
-            </button>
+            <div className="flex gap-3">
+                {/* Cancel only when editing; a new recipe has nowhere to go back to */}
+                {recipe && (
+                    <button
+                        type="button"
+                        onClick={handleCancel}
+                        disabled={saving}
+                        className="flex-1 rounded-lg border border-field-border py-3 font-semibold disabled:opacity-50"
+                    >
+                        Cancel
+                    </button>
+                )}
+                <button type="submit" disabled={saving} className="flex-1 rounded-lg bg-mustard py-3 font-semibold text-pot disabled:opacity-50">
+                    {saving ? "Saving…" : recipe ? "Save changes" : "Save recipe"}
+                </button>
+            </div>
         </form>
     );
 }

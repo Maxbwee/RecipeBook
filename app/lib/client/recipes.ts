@@ -30,13 +30,13 @@ export async function createRecipe(recipe: NewRecipe): Promise<Recipes | null> {
 }
 
 export async function updateRecipe(id: string, changes: Partial<NewRecipe>) {
-    const {data, error} = await supabase
+    const { data, error } = await supabase
         .from('recipes')
         .update(changes)
         .eq('id', id)
         .select()
         .single();
-    if(error) {
+    if (error) {
         console.error('Error updating recipe: ', error)
     }
 
@@ -64,4 +64,17 @@ export async function replaceIngredients(recipeId: string, ingredients: NewIngre
         return false;
     }
     return addIngredients(recipeId, ingredients);
+}
+
+export async function deleteRecipe(id: string) {
+    const { error } = await supabase
+        .from('recipes')
+        .delete()
+        .eq('id', id);
+    if (error) {
+        console.error('Error deleting recipe', error);
+        return false;
+    }
+    
+    return true;
 }

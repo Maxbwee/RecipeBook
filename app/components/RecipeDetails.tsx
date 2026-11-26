@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getRecipe } from "../lib/server/recipes";
+import { DeleteRecipeButton } from "./DeleteRecipeButton";
 
 export async function RecipeDetails({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -15,7 +16,7 @@ export async function RecipeDetails({ params }: { params: Promise<{ id: string }
     ].filter(Boolean);
 
     return (
-        <article className="flex flex-col gap-6">
+        <article className="flex flex-1 flex-col gap-6">
             <header className="flex flex-col gap-2">
                 <div className="flex items-start justify-between gap-4">
                     <h1 className="text-2xl font-bold">{recipe.name}</h1>
@@ -51,6 +52,13 @@ export async function RecipeDetails({ params }: { params: Promise<{ id: string }
                     <p className="whitespace-pre-line">{recipe.instructions}</p>
                 </section>
             )}
+
+            {/* mt-auto pushes the footer to the bottom of the screen on short
+                recipes; on long ones it simply follows the method. */}
+            <footer className="mt-auto flex flex-col gap-2 pt-6">
+                <DeleteRecipeButton recipeId={recipe.id} />
+            </footer>
         </article>
+        
     );
 }
