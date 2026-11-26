@@ -5,8 +5,8 @@ export type Recipes = {
     description: string | null;
     instructions: string | null;
     servings: number | null;
-    prep_minutes: number;
-    cook_minutes: number;
+    prep_minutes: number | null;
+    cook_minutes: number |null;
     image_path: string | null;
     position: number;
     created_at: string;
@@ -31,9 +31,22 @@ export type Ingredient = {
     position: number;
 }
 
+export type IngredientRow = {
+    key: string;
+    name: string;
+    quantity: string;
+    unit: string
+}
+
 export type NewIngredient = Pick<Ingredient, 'name'> &
     Partial<Pick<Ingredient, 'quantity' | 'unit' | 'note'>>;
 
 export type RecipeWithIngredients = Recipes & {
     recipe_ingredients: Ingredient[];
+}
+
+// A recipe in the list: ingredients are only counted, not loaded.
+// Supabase returns the count as a one-item array: [{ count: 8 }].
+export type RecipeListItem = Recipes & {
+    recipe_ingredients: { count: number }[];
 }
